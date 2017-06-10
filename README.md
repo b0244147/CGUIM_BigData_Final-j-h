@@ -44,10 +44,16 @@ library(dplyr)
     ##     intersect, setdiff, setequal, union
 
 ``` r
-library(ggplot2) 
+library(ggplot2)
 ```
 
     ## Warning: package 'ggplot2' was built under R version 3.3.3
+
+``` r
+library(readxl)
+```
+
+    ## Warning: package 'readxl' was built under R version 3.3.3
 
 ``` r
 THSRC_NUMBER_MOD <- read_csv("D:/課用/R/data/THSRC_NUMBER_MOD.csv", 
@@ -63,6 +69,11 @@ THSRC_NUMBER_MOD <- read_csv("D:/課用/R/data/THSRC_NUMBER_MOD.csv",
     ##   座位公里 = col_number(),
     ##   準點率 = col_character()
     ## )
+
+``` r
+THSRC_2_8_MOD <- read_excel("D:/課用/R/data/THSRC_2_8_MOD.xls")
+THSRC_2_8_Month <- read_excel("D:/課用/R/data/THSRC_2_8_Month.xls")
+```
 
 資料處理與清洗
 --------------
@@ -253,3 +264,135 @@ knitr::kable(THSRC_NUMBER_MOD)
 ----------------
 
 搭乘高鐵的人數越來越多，其中影響人們搭乘的原因有很多種，我們想透過分析來了解哪種原因對於高鐵搭乘人數影響最多。列車班次數、票價、開站數量、準點率這些都是可能對旅客人數的造成影響的原因。
+
+期末專題分析過程&結果
+---------------------
+
+``` r
+##班次數&客座率&搭乘人數
+#整理出2_8年度資料
+THSRC2_8<-THSRC_2_8_MOD[grepl("年",THSRC_2_8_MOD$Year),]
+THSRC2_8$Shift_sum<-THSRC_NUMBER_NEW$shift_sum
+#去除106年資料
+THSRC2_8<-THSRC2_8[-11,]
+lm(Seat_Utilization_Percentage~Shift_sum,
+   data =THSRC2_8)
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = Seat_Utilization_Percentage ~ Shift_sum, data = THSRC2_8)
+    ## 
+    ## Coefficients:
+    ## (Intercept)    Shift_sum  
+    ##   28.536070     0.000526
+
+``` r
+qplot(Shift_sum, Seat_Utilization_Percentage, 
+      data = THSRC2_8,
+    
+      geom = c("point", "smooth"))
+```
+
+    ## `geom_smooth()` using method = 'loess'
+
+![](README_files/figure-markdown_github/unnamed-chunk-4-1.png)
+
+``` r
+#改作每月
+lm(Seat_Utilization_Percentage~Shift_sum,
+   data =THSRC_2_8_Month)
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = Seat_Utilization_Percentage ~ Shift_sum, data = THSRC_2_8_Month)
+    ## 
+    ## Coefficients:
+    ## (Intercept)    Shift_sum  
+    ##   -23.02288      0.01902
+
+``` r
+qplot(Shift_sum, Seat_Utilization_Percentage, 
+      data = THSRC_2_8_Month,
+      
+      geom = c("point", "smooth"))
+```
+
+    ## `geom_smooth()` using method = 'loess'
+
+![](README_files/figure-markdown_github/unnamed-chunk-4-2.png)
+
+``` r
+#列車次數&旅客人數&站數
+lm(Passengers~Shift_sum,
+   data =THSRC_2_8_Month)
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = Passengers ~ Shift_sum, data = THSRC_2_8_Month)
+    ## 
+    ## Coefficients:
+    ## (Intercept)    Shift_sum  
+    ##   -6589.406        2.526
+
+``` r
+qplot(Shift_sum, Passengers, 
+      data = THSRC_2_8_Month,
+      
+      geom = c("point", "smooth"))
+```
+
+    ## `geom_smooth()` using method = 'loess'
+
+![](README_files/figure-markdown_github/unnamed-chunk-4-3.png)
+
+``` r
+THSRC_NUMBER_NEW<-THSRC_NUMBER_NEW[-11,]
+lm(Pop~shift_sum,
+   data =THSRC_NUMBER_NEW)
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = Pop ~ shift_sum, data = THSRC_NUMBER_NEW)
+    ## 
+    ## Coefficients:
+    ## (Intercept)    shift_sum  
+    ##   -20627147         1325
+
+``` r
+qplot(shift_sum, Pop, 
+      data = THSRC_NUMBER_NEW,
+      
+      geom = c("point", "smooth"))
+```
+
+    ## `geom_smooth()` using method = 'loess'
+
+![](README_files/figure-markdown_github/unnamed-chunk-4-4.png)
+
+``` r
+lm(Passengers~station,
+   data =THSRC_2_8_Month)
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = Passengers ~ station, data = THSRC_2_8_Month)
+    ## 
+    ## Coefficients:
+    ## (Intercept)      station  
+    ##       149.9        354.4
+
+``` r
+qplot(Shift_sum, station, 
+      data = THSRC_2_8_Month,
+      
+      geom = c("point", "smooth"))
+```
+
+    ## `geom_smooth()` using method = 'loess'
+
+![](README_files/figure-markdown_github/unnamed-chunk-4-5.png)
