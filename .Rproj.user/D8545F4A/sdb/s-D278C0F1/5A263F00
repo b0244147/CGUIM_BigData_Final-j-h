@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "library(readr)\nlibrary(dplyr)\n##總人數需要去掉106年ˊ\nTHSRC_NUMBER_MOD <- read_csv(\"D:/課用/R/data/THSRC_NUMBER_MOD.csv\", \n                             locale = locale())\ntest<-read_csv(\"D:/課用/R/data/THSRC_NUMBER_MOD.csv\", \n               locale = locale())\n##依據各年度 統計出搭乘人數&班次數量&物點數\ncolnames(THSRC_NUMBER_MOD) <- iconv(colnames(THSRC_NUMBER_MOD), 'utf8', 'big5')\n\ntravelers_pop<-group_by(THSRC_NUMBER_MOD, .dots=年)%>%\n  summarise(Pop=sum(旅客人數))\ntravelers_mean<-group_by(THSRC_NUMBER_MOD, .dots=年)%>%\n  summarise(meanPop=mean(旅客人數))\n\nshifts_sum<-group_by(THSRC_NUMBER_MOD, .dots=年)%>%\n  summarise(shift_num=sum(列車次數))\nshifts_mean<-group_by(THSRC_NUMBER_MOD, .dots=年)%>%\n  summarise(shift_mean=mean(列車次數))\n\nTHSRC_NUMBER_MOD$誤點數<-round(THSRC_NUMBER_MOD$列車次數*\n                              (1-as.numeric(gsub(\"%\",\"\",THSRC_NUMBER_MOD$準點率))/100),0)\ndelay_sum<-group_by(THSRC_NUMBER_MOD, .dots=年)%>%\n  summarise(num=sum(誤點數))\ndelay_mean<-group_by(THSRC_NUMBER_MOD, .dots=年)%>%\n  summarise(num_mean=mean(誤點數))\n\nTHSRC_NUMBER_NEW<-merge(travelers_pop,travelers_mean,by=\".dots\")\nTHSRC_NUMBER_NEW$shift_sum<-shifts_sum$shift_num\nTHSRC_NUMBER_NEW$shift_mean<-shifts_mean$shift_mean\nTHSRC_NUMBER_NEW$delay_num<-delay_sum$num\nlibrary(ggplot2) \n##散布圖\nqplot(Pop, shift_sum, \n      data = THSRC_NUMBER_NEW,\n      color = .dots,\n      geom = c(\"point\", \"smooth\"))\nqplot(旅客人數, 列車次數, \n      data = THSRC_NUMBER_MOD,\n      color = 年,\n      geom = c(\"point\", \"smooth\"))\nqplot(月, 旅客人數, \n          data = THSRC_NUMBER_MOD,\n          color = 年,\n          geom = c(\"point\", \"smooth\"))\n##直方圖\nqplot(.dots, data = THSRC_NUMBER_NEW, \n      fill = Pop)\ntest3$.dots<-as.factor(airquality$.dots)\ntest3.mean<-test3$Pop\nggplot()+geom_bar(data=test3.mean,\n                  aes(x=Month,y=OzoneMean),\n                  stat = \"identity\") \nqplot(月, data = THSRC_NUMBER_MOD, main=\"旅客人數\")\n\nlibrary(dplyr)\n#將Month轉為因子變項\ntest96$月<-as.factor(test96$月) \n#計算每月Ozone平均\ntest96.mean<-test96$旅客人數\n#stat = \"identity\" 直接畫數字\nggplot()+geom_bar(data=test96,\n                  aes(x=月,y=test96.mean),\n                  stat = \"identity\") \ntest96<-subset(test,年==\"96\")\n\nlibrary(datasets) \nlibrary(dplyr)\n#將Month轉為因子變項\nairquality$Month<-as.factor(airquality$Month) \n#計算每月Ozone平均\nairquality.mean<-airquality%>%group_by(Month)%>%\n  summarise(zoneMean=mean(Ozone,na.rm = T)) \n#stat = \"identity\" 直接畫數字\nggplot()+geom_bar(data=airquality.mean,\n                  aes(x=Month,y=OzoneMean),\n                  stat = \"identity\") ",
+    "created" : 1496848469679.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1580537941",
+    "id" : "5A263F00",
+    "lastKnownWriteTime" : 1496717789,
+    "last_content_update" : 1496717789,
+    "path" : "D:/課用/R/HW6.R",
+    "project_path" : null,
+    "properties" : {
+    },
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

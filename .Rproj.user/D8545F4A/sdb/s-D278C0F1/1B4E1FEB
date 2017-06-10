@@ -1,0 +1,21 @@
+{
+    "collab_server" : "",
+    "contents" : "---\ntitle: \"期末書面報告\"\noutput: github_document\n---\n組員：許家睿 蔡宇哲\n\n## 分析議題背景\n現今的社會，人們日趨繁忙，汲汲於賺錢生活，哪怕是多一分休息、自由的時間都變得格外重要，因此，能夠省去大量交通時間的高鐵就成了大眾快速往返南北的工具，而搭乘高鐵的性價比的高低，我們將由搭乘人數來做觀察。\n\n## 分析動機\n高鐵會定期的更新車次以及班次，班次的多寡是否會影響乘客搭乘的人數。\n除了班次以外，票價也是會影響搭車的人數，因此我們希望得知價格的變化是否會影響乘客的數量。\n\n\n## 使用資料\n說明使用資料們\n1.\t高鐵運量統計表 來源：政府資料開放平台 資料類型：CSV 主要欄位：月份、發車數、客座公里（座公里）、準點率、旅客人數（人次） 日期：104年12月29日\n\n\n\n載入使用資料們\n```{r}\nlibrary(readr)\nlibrary(dplyr)\nlibrary(ggplot2) \nTHSRC_NUMBER_MOD <- read_csv(\"D:/課用/R/data/THSRC_NUMBER_MOD.csv\", \n    locale = locale())\n```\n\n## 資料處理與清洗\n將資料依據年份作整理，\n得出每一年的旅客人數、列車次數、準點率，\n再利用這些資料來做每一年度的平均，\n最後整理在同一張表中。\n\n處理資料\n```{r}\ntravelers_pop<-group_by(THSRC_NUMBER_MOD, .dots=年)%>%\n  summarise(Pop=sum(旅客人數))\ntravelers_mean<-group_by(THSRC_NUMBER_MOD, .dots=年)%>%\n  summarise(meanPop=mean(旅客人數))\n\nshifts_sum<-group_by(THSRC_NUMBER_MOD, .dots=年)%>%\n  summarise(shift_num=sum(列車次數))\nshifts_mean<-group_by(THSRC_NUMBER_MOD, .dots=年)%>%\n  summarise(shift_mean=mean(列車次數))\n\nTHSRC_NUMBER_MOD$誤點數<-round(THSRC_NUMBER_MOD$列車次數*\n                              (1-as.numeric(gsub(\"%\",\"\",THSRC_NUMBER_MOD$準點率))/100),0)\ndelay_sum<-group_by(THSRC_NUMBER_MOD, .dots=年)%>%\n  summarise(num=sum(誤點數))\ndelay_mean<-group_by(THSRC_NUMBER_MOD, .dots=年)%>%\n  summarise(num_mean=mean(誤點數))\n\nTHSRC_NUMBER_NEW<-merge(travelers_pop,travelers_mean,by=\".dots\")\nTHSRC_NUMBER_NEW$shift_sum<-shifts_sum$shift_num\nTHSRC_NUMBER_NEW$shift_mean<-shifts_mean$shift_mean\nTHSRC_NUMBER_NEW$delay_num<-delay_sum$num\n```\n\n## 探索式資料分析\n\n```{r}\nqplot(旅客人數, 列車次數, \n      data = THSRC_NUMBER_MOD,\n      color = 年,\n      geom = c(\"point\", \"smooth\"))\n##旅客人數與列車次數的關係\n##起先由列車次數快速增加隨後旅客人數才有大幅的上升\n##我們可以發現剛開始列車增加人數成長快但是到了後期搭車人數成長緩慢\n\n\nknitr::kable(THSRC_NUMBER_MOD)\n##7,8月正值暑假相較前面兩三個月都會有暴增的現象\n##也多半是一年中的巔峰時期\n\n```\n\n## 期末專題分析規劃\n\n搭乘高鐵的人數越來越多，其中影響人們搭乘的原因有很多種，我們想透過分析來了解哪種原因對於高鐵搭乘人數影響最多。列車班次數、票價、開站數量、準點率這些都是可能對旅客人數的造成影響的原因。\n\n\n",
+    "created" : 1496848355984.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "259874252",
+    "id" : "1B4E1FEB",
+    "lastKnownWriteTime" : 1496849532,
+    "last_content_update" : 1496849532087,
+    "path" : "D:/課用/R/CGUIM_BigData_Final-j-h/README.Rmd",
+    "project_path" : "README.Rmd",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}
