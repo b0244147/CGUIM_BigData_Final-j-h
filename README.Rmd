@@ -5,16 +5,18 @@ output: github_document
 組員：許家睿 蔡宇哲
 
 ## 分析議題背景
-現今的社會，人們日趨繁忙，汲汲於賺錢生活，哪怕是多一分休息、自由的時間都變得格外重要，因此，能夠省去大量交通時間的高鐵就成了大眾快速往返南北的工具，而搭乘高鐵的性價比的高低，我們將由搭乘人數來做觀察。
+現今的社會，人們日趨繁忙，汲汲於賺錢生活，哪怕是多一分休息、自由的時間都變得格外重要，因此，能夠省去大量交通時間的高鐵就成了大眾快速往返南北的工具，我們將使用高鐵相關資料來做觀察。
 
 ## 分析動機
 高鐵會定期的更新車次以及班次，班次的多寡是否會影響乘客搭乘的人數。
-除了班次以外，票價也是會影響搭車的人數，因此我們希望得知價格的變化是否會影響乘客的數量。
+除了班次以外，還有許多因素也是會影響搭車的人數，因此我們希望得知這些因素是否會影響乘客的數量，以及高鐵班次及人數的如何安排會有較佳的組合。
 
 
 ## 使用資料
 說明使用資料們
 1.	高鐵運量統計表 來源：政府資料開放平台 資料類型：CSV 主要欄位：月份、發車數、客座公里（座公里）、準點率、旅客人數（人次） 日期：104年12月29日
+2.  高速鐵路客運量 來源：中華民國交通部 資料類型：XLS 主要欄位：年（月）別、旅客人數、延人公里、平均每一旅客運距、客座利用率、準點率
+
 
 
 
@@ -68,14 +70,15 @@ qplot(旅客人數, 列車次數,
       data = THSRC_NUMBER_MOD,
       color = 年,
       geom = c("point", "smooth"))
-##旅客人數與列車次數的關係
-##起先由列車次數快速增加隨後旅客人數才有大幅的上升
-##我們可以發現剛開始列車增加人數成長快但是到了後期搭車人數成長緩慢
+
+##在高鐵剛開放時，旅客人數的成長幅度還不是很大，
+##而是在列車班次大幅增加之後，人數數量才有大幅的成長
+##但是隨著人數的上升似乎也會到達飽和的狀態。
 
 
-knitr::kable(THSRC_NUMBER_MOD)
+knitr::kable(head(THSRC_NUMBER_MOD,12))
 ##7,8月正值暑假相較前面兩三個月都會有暴增的現象
-##也多半是一年中的巔峰時期
+##年中以及年尾是一年中的巔峰時期
 
 ```
 
@@ -96,36 +99,50 @@ lm(Seat_Utilization_Percentage~Shift_sum,
    data =THSRC2_8)
 qplot(Shift_sum, Seat_Utilization_Percentage, 
       data = THSRC2_8,
-    
       geom = c("point", "smooth"))
 
-#改作每月
-lm(Seat_Utilization_Percentage~Shift_sum,
-   data =THSRC_2_8_Month)
+##每年資料筆數太少改作每月
 qplot(Shift_sum, Seat_Utilization_Percentage, 
       data = THSRC_2_8_Month,
       
       geom = c("point", "smooth"))
+##這張圖是利用高鐵的空位百分比以及班次數做出來的圖表。其中每個點代表了每個月分資料。
+##我們可以看出來斜線當中當班次越多的時候空位率是越低的，
+##但是當超過一定的數量時，空位率又會變高。
+
+summary(lm(Seat_Utilization_Percentage~Shift_sum,
+   data =THSRC_2_8_Month))
+##由P值小於0.05，我們可以說這個回歸分析結果是顯著的
 
 #列車次數&旅客人數&站數
-lm(Passengers~Shift_sum,
-   data =THSRC_2_8_Month)
+
 qplot(Shift_sum, Passengers, 
       data = THSRC_2_8_Month,
-      
       geom = c("point", "smooth"))
+##這張圖是使用搭乘人數與班次所製作出的圖表，其中每個點代表了每個月分資料。
+##我們可以看出當班次越來越多的時候，搭乘人數也逐漸上升，但是跟上一張圖表一樣，
+##班次超過一定數量時，搭乘人數有些許下降的現象。
 
+summary(lm(Passengers~Shift_sum,
+   data =THSRC_2_8_Month))
+##由P值小於0.05，我們可以說這個回歸分析結果是顯著的
 THSRC_NUMBER_NEW<-THSRC_NUMBER_NEW[-11,]
-lm(Pop~shift_sum,
-   data =THSRC_NUMBER_NEW)
-qplot(shift_sum, Pop, 
-      data = THSRC_NUMBER_NEW,
-      
-      geom = c("point", "smooth"))
 
-lm(Passengers~station,
-   data =THSRC_2_8_Month)
-qplot(Shift_sum, station, 
+
+
+qplot(station, Passengers, 
       data = THSRC_2_8_Month,
-      
-      geom = c("point", "smooth"))
+      )
+##這是利用車站數及搭乘人數所做的圖表，當車站數量增加，搭乘人數也會增加，
+##但是在車站數為9的時候，搭乘人數已有超越車站數12時期的人數
+##因此我們認為這兩者的關係並沒有那麼直接的相關，而是還要從車站設立在哪個地點，以及那個區域的需求人數，才能做進一步的探討
+summary(lm(Passengers~station,
+   data =THSRC_2_8_Month))
+##由P值小於0.05，我們可以說這個回歸分析結果是顯著的
+
+
+##結論
+##班次著實會影響搭乘人數，而班次數則不一定，
+##以目前高鐵的狀態，在不增加新的車站的情況下，
+##班次數約落在2000~2200搭乘人數為圖表的高峰區段，
+##會有較佳的效益
